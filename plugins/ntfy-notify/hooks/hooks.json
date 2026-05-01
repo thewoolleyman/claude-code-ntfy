@@ -1,0 +1,28 @@
+{
+  "description": "Send an ntfy push when Claude Code's top-level agent stops or asks for permission/idle input.",
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks-handlers/notify-ready.sh",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "matcher": "permission_prompt|idle_prompt",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks-handlers/notify-ready.sh",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}

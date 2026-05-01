@@ -1,0 +1,8 @@
+{
+  "name": "ntfy-notify",
+  "version": "0.1.0",
+  "description": "Push notification via ntfy when Claude Code is ready for user input. Top-level agent only (subagent stops are filtered out).",
+  "author": {
+    "name": "thewoolleyman"
+  }
+}
