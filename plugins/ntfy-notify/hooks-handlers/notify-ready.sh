@@ -66,10 +66,27 @@ esac
 
 # 3. REST gating + de-dup. ASK events bypass this entirely (always notify).
 if [[ "$kind" == "rest" ]]; then
-  # Parked mid-orchestration → not your turn.
-  [[ "$event" == "Stop" && "$running" -gt 0 ]] && exit 0
+  safe_sid="$(printf '%s' "$session_id" | tr -c 'A-Za-z0-9._-' '_')"
+  runfile="${TMPDIR:-/tmp}/claude-ntfy-running.${safe_sid}"
+
+  # Persist each Stop's running-count. An idle_prompt fires on a ~60s timer after
+  # the LEAD's own turn (NOT when the team goes idle) and its payload carries no
+  # background_tasks — so on its own it can't tell "team idle" from "still parked
+  # for teammates". It borrows the most recent Stop's count to decide.
+  [[ "$event" == "Stop" ]] && printf '%s' "$running" > "$runfile" 2>/dev/null || true
+
+  busy="$running"
+  if [[ "$event" != "Stop" ]]; then
+    last_run="$(cat "$runfile" 2>/dev/null || echo 0)"
+    [[ "$last_run" =~ ^[0-9]+$ ]] || last_run=0
+    (( last_run > busy )) && busy="$last_run"
+  fi
+  # Parked mid-orchestration (lead Stop with bg work, OR idle while the last Stop
+  # still had bg work) → not your turn.
+  (( busy > 0 )) && exit 0
+
   # Collapse the Stop(bg=0)+idle pair (and idle doubles) into one push, per session.
-  statefile="${TMPDIR:-/tmp}/claude-ntfy-rest.$(printf '%s' "$session_id" | tr -c 'A-Za-z0-9._-' '_')"
+  statefile="${TMPDIR:-/tmp}/claude-ntfy-rest.${safe_sid}"
   now="$(date +%s)"; last="$(cat "$statefile" 2>/dev/null || echo 0)"
   [[ "$last" =~ ^[0-9]+$ ]] && (( now - last < 90 )) && exit 0
   printf '%s' "$now" > "$statefile" 2>/dev/null || true
