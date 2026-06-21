@@ -5,13 +5,13 @@
   },
   "metadata": {
     "description": "ntfy-based push notifications for Claude Code (Stop and Notification events).",
-    "version": "0.1.0"
+    "version": "0.1.1"
   },
   "plugins": [
     {
       "name": "ntfy-notify",
       "description": "Push notification via ntfy when Claude Code is ready for user input. Top-level agent only.",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "author": {
         "name": "thewoolleyman"
       },
