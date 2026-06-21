@@ -1,5 +1,5 @@
 {
-  "description": "Send an ntfy push when Claude Code's top-level agent stops or asks for permission/idle input.",
+  "description": "Send an ntfy push when Claude Code's top-level agent is waiting for the human — a genuine resting point (Stop with no background work, or an idle prompt) or an explicit ask (permission / elicitation). Sub-agent stops and mid-orchestration churn are filtered out by the handler.",
   "hooks": {
     "Stop": [
       {
@@ -14,7 +14,6 @@
     ],
     "Notification": [
       {
-        "matcher": "permission_prompt|idle_prompt",
         "hooks": [
           {
             "type": "command",
